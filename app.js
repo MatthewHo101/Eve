@@ -25,7 +25,6 @@ navButtons.forEach(button => {
   });
 });
 
-// Open My Characters automatically if arriving from fits.html#my-characters
 if (window.location.hash === '#my-characters') {
   switchPage('my-characters');
 }
@@ -70,14 +69,35 @@ if (refreshBtn) {
   loadAll();
 }
 
-// --- EVE SSO CONFIGURATION ---
+// --- MULTI-CHARACTER EVE SSO CONFIGURATION ---
 const CLIENT_ID = 'ad56410943214f14875ece43370095f3';
 const CALLBACK_URL = 'https://eveindustry.vercel.app/';
 const SCOPES = 'esi-assets.read_assets.v1';
 
 const loginBtn = document.getElementById('login-btn');
 const pilotInfoEl = document.getElementById('pilot-info');
+const rosterEl = document.getElementById('character-roster');
 const assetListEl = document.getElementById('asset-list');
+const assetHeaderEl = document.getElementById('asset-header');
+
+// Load saved characters dictionary from localStorage
+function getSavedCharacters() {
+  const raw = localStorage.getItem('eve_characters');
+  return raw ? JSON.parse(raw) : {};
+}
+
+function saveCharacter(id, name, accessToken) {
+  const chars = getSavedCharacters();
+  chars[id] = { id, name, accessToken, updatedAt: Date.now() };
+  localStorage.setItem('eve_characters', JSON.stringify(chars));
+}
+
+function removeCharacter(id) {
+  const chars = getSavedCharacters();
+  delete chars[id];
+  localStorage.setItem('eve_characters', JSON.stringify(chars));
+  renderRoster();
+}
 
 function generateRandomString(length) {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
@@ -115,83 +135,93 @@ if (loginBtn) {
   });
 }
 
-async function handleCallback() {
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get('code');
-  const verifier = sessionStorage.getItem('pkce_verifier');
+// Render the top-right counter and the clickable character cards
+function renderRoster(selectedId = 'ALL') {
+  const chars = Object.values(getSavedCharacters());
+  if (pilotInfoEl) {
+    pilotInfoEl.textContent = `${chars.length} Pilot${chars.length === 1 ? '' : 's'} Linked`;
+  }
+  if (loginBtn) {
+    loginBtn.textContent = chars.length > 0 ? '+ Add Alt' : '+ Add Character';
+  }
 
-  // If already logged in during this browser session, restore pilot name & assets
-  const savedName = sessionStorage.getItem('eve_char_name');
-  const savedId = sessionStorage.getItem('eve_char_id');
-  const savedToken = sessionStorage.getItem('eve_access_token');
+  if (!rosterEl) return;
 
-  if (!code && savedName && savedId && savedToken) {
-    pilotInfoEl.textContent = `Logged in as: ${savedName}`;
-    loginBtn.style.display = 'none';
-    if (assetListEl) fetchCharacterAssets(savedId, savedToken);
+  if (chars.length === 0) {
+    rosterEl.innerHTML = '<p class="empty-msg">No characters linked yet. Click "+ Add Character" in the top right.</p>';
+    if (assetListEl) assetListEl.innerHTML = '<li>Link a character to view hangar assets.</li>';
     return;
   }
 
-  if (!code || !verifier) return;
+  rosterEl.innerHTML = '';
 
-  switchPage('my-characters');
-
-  pilotInfoEl.textContent = 'Authenticating with CONCORD...';
-  loginBtn.style.display = 'none';
-
-  window.history.replaceState({}, document.title, window.location.pathname);
-
-  try {
-    const body = new URLSearchParams({
-      grant_type: 'authorization_code',
-      client_id: CLIENT_ID,
-      code: code,
-      code_verifier: verifier
+  // 1. Add "All Characters (Combined)" button if more than 1 character is linked
+  if (chars.length > 1) {
+    const allChip = document.createElement('div');
+    allChip.className = `char-chip ${selectedId === 'ALL' ? 'active-char' : ''}`;
+    allChip.innerHTML = `<strong>All Alts Combined (${chars.length})</strong>`;
+    allChip.addEventListener('click', () => {
+      renderRoster('ALL');
+      fetchCombinedAssets(chars);
     });
-
-    const tokenRes = await fetch('https://login.eveonline.com/v2/oauth/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: body
-    });
-    const tokenData = await tokenRes.json();
-
-    const payload = JSON.parse(atob(tokenData.access_token.split('.')[1]));
-    const characterName = payload.name;
-    const characterId = payload.sub.split(':')[2];
-
-    sessionStorage.setItem('eve_char_name', characterName);
-    sessionStorage.setItem('eve_char_id', characterId);
-    sessionStorage.setItem('eve_access_token', tokenData.access_token);
-
-    pilotInfoEl.textContent = `Logged in as: ${characterName}`;
-    if (assetListEl) {
-      await fetchCharacterAssets(characterId, tokenData.access_token);
-    }
-  } catch (err) {
-    pilotInfoEl.textContent = 'Login failed. Check console for details.';
-    loginBtn.style.display = 'inline-block';
+    rosterEl.appendChild(allChip);
   }
+
+  // 2. Add a portrait chip for each individual character
+  chars.forEach(char => {
+    const chip = document.createElement('div');
+    const isSelected = selectedId === char.id || (chars.length === 1 && selectedId === 'ALL');
+    chip.className = `char-chip ${isSelected ? 'active-char' : ''}`;
+    chip.innerHTML = `
+      <img src="https://images.evetech.net/characters/${char.id}/portrait?size=64" alt="${char.name}">
+      <span>${char.name}</span>
+      <button class="remove-char" title="Remove character">&times;</button>
+    `;
+
+    // Click chip to view that specific character's assets
+    chip.addEventListener('click', (e) => {
+      if (e.target.classList.contains('remove-char')) {
+        e.stopPropagation();
+        removeCharacter(char.id);
+        return;
+      }
+      renderRoster(char.id);
+      fetchCombinedAssets([char]);
+    });
+
+    rosterEl.appendChild(chip);
+  });
 }
 
-async function fetchCharacterAssets(characterId, accessToken) {
+// Fetch and combine assets for 1 or all characters
+async function fetchCombinedAssets(charList) {
   if (!assetListEl) return;
+
+  const label = charList.length === 1 ? `${charList[0].name}'s Assets` : `Combined Assets (${charList.length} Pilots)`;
+  if (assetHeaderEl) assetHeaderEl.textContent = label;
   assetListEl.innerHTML = '<li>Scanning station hangars...</li>';
 
-  const assetsRes = await fetch(
-    `https://esi.evetech.net/latest/characters/${characterId}/assets/?datasource=tranquility`,
-    { headers: { Authorization: `Bearer ${accessToken}` } }
-  );
-  const assets = await assetsRes.json();
-
   const totals = {};
-  assets.forEach(item => {
-    totals[item.type_id] = (totals[item.type_id] || 0) + item.quantity;
-  });
+
+  for (const char of charList) {
+    try {
+      const res = await fetch(
+        `https://esi.evetech.net/latest/characters/${char.id}/assets/?datasource=tranquility`,
+        { headers: { Authorization: `Bearer ${char.accessToken}` } }
+      );
+      if (!res.ok) continue;
+      const assets = await res.json();
+      assets.forEach(item => {
+        totals[item.type_id] = (totals[item.type_id] || 0) + item.quantity;
+      });
+    } catch (err) {
+      console.error(`Failed fetching assets for ${char.name}`, err);
+    }
+  }
 
   const uniqueTypeIds = Object.keys(totals).slice(0, 50).map(Number);
   if (uniqueTypeIds.length === 0) {
-    assetListEl.innerHTML = '<li>No assets found.</li>';
+    assetListEl.innerHTML = '<li>No assets found (or session expired—click "+ Add Alt" to refresh login).</li>';
     return;
   }
 
@@ -212,6 +242,53 @@ async function fetchCharacterAssets(characterId, accessToken) {
     li.innerHTML = `<span>${entry.name}</span> <span class="qty">x${qty}</span>`;
     assetListEl.appendChild(li);
   });
+}
+
+async function handleCallback() {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  const verifier = sessionStorage.getItem('pkce_verifier');
+
+  if (code && verifier) {
+    switchPage('my-characters');
+    if (pilotInfoEl) pilotInfoEl.textContent = 'Authenticating pilot...';
+    window.history.replaceState({}, document.title, window.location.pathname);
+
+    try {
+      const body = new URLSearchParams({
+        grant_type: 'authorization_code',
+        client_id: CLIENT_ID,
+        code: code,
+        code_verifier: verifier
+      });
+
+      const tokenRes = await fetch('https://login.eveonline.com/v2/oauth/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body
+      });
+      const tokenData = await tokenRes.json();
+
+      const payload = JSON.parse(atob(tokenData.access_token.split('.')[1]));
+      const characterName = payload.name;
+      const characterId = payload.sub.split(':')[2];
+
+      saveCharacter(characterId, characterName, tokenData.access_token);
+      renderRoster(characterId);
+      const chars = getSavedCharacters();
+      await fetchCombinedAssets([chars[characterId]]);
+      return;
+    } catch (err) {
+      if (pilotInfoEl) pilotInfoEl.textContent = 'Login failed.';
+    }
+  }
+
+  // On normal page load, display any already-saved characters
+  const existingChars = Object.values(getSavedCharacters());
+  renderRoster('ALL');
+  if (existingChars.length > 0) {
+    fetchCombinedAssets(existingChars);
+  }
 }
 
 handleCallback();

@@ -19,8 +19,8 @@
         </div>
 
         <div class="nav-auth">
-            <span id="pilot-info">Not logged in</span>
-            <button id="login-btn">Log In with EVE</button>
+            <span id="pilot-info">0 Pilots Linked</span>
+            <button id="login-btn">+ Add Character</button>
         </div>
     </nav>
 
@@ -42,14 +42,21 @@
             </div>
         </div>
 
-        <!-- PAGE 2: MY CHARACTERS (Assets & Industry) -->
+        <!-- PAGE 2: MY CHARACTERS (Multi-Character Assets & Industry) -->
         <div id="my-characters" class="page-view">
-            <h1>My Characters & Assets</h1>
+            <h1>My Characters & Alts</h1>
 
             <div class="card">
-                <h2>Pilot Assets & Materials</h2>
+                <h2>Linked Pilots</h2>
+                <div id="character-roster">
+                    <p class="empty-msg">No characters linked yet. Click "+ Add Character" in the top right.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 id="asset-header">Pilot Assets & Materials</h2>
                 <ul id="asset-list">
-                    <li>Use the "Log In with EVE" button in the top right to view your hangar assets.</li>
+                    <li>Select a character above to scan their hangar.</li>
                 </ul>
             </div>
         </div>

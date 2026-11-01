@@ -147,3 +147,54 @@ button.nav-link.active {
   background: none;
   color: #ffffff;
 }
+
+/* Multi-Character Roster Styles */
+#character-roster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.char-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #0b0e14;
+  border: 1px solid #262c3a;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #d8dee9;
+  font-size: 13px;
+}
+
+.char-chip:hover {
+  border-color: #00b4d8;
+}
+
+.char-chip.active-char {
+  border-color: #f59e0b;
+  background: #1f2937;
+}
+
+.char-chip img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #00b4d8;
+}
+
+.remove-char {
+  background: none;
+  color: #ef4444;
+  border: none;
+  padding: 2px 6px;
+  font-size: 14px;
+  margin-left: 4px;
+}
+
+.remove-char:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
