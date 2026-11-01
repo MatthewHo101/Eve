@@ -35,3 +35,8 @@ function loadAll() {
 
 refreshBtn.addEventListener('click', loadAll);
 loadAll();
+
+// --- EVE SSO CONFIGURATION ---
+const CLIENT_ID = 'ad56410943214f14875ece43370095f3';
+const CALLBACK_URL = 'https://eveindustry.vercel.app/';
+const SCOPES = 'esi-assets.read_assets.v1';
