@@ -137,3 +137,13 @@ button:hover {
   color: #00b4d8;
   font-weight: bold;
 }
+button.nav-link {
+  background: none;
+  color: #9ca3af;
+}
+
+button.nav-link:hover,
+button.nav-link.active {
+  background: none;
+  color: #ffffff;
+}
