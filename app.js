@@ -25,8 +25,14 @@ navButtons.forEach(button => {
   });
 });
 
+// Open My Characters automatically if arriving from fits.html#my-characters
+if (window.location.hash === '#my-characters') {
+  switchPage('my-characters');
+}
+
 // --- COMMAND DECK ESI DATA ---
 async function fetchServerStatus() {
+  if (!statusEl) return;
   try {
     const response = await fetch('https://esi.evetech.net/latest/status/?datasource=tranquility');
     const data = await response.json();
@@ -40,6 +46,7 @@ async function fetchServerStatus() {
 }
 
 async function fetchPlexPrice() {
+  if (!plexEl) return;
   try {
     plexEl.textContent = 'Updating...';
     const response = await fetch('https://esi.evetech.net/latest/markets/prices/?datasource=tranquility');
@@ -58,8 +65,10 @@ function loadAll() {
   fetchPlexPrice();
 }
 
-refreshBtn.addEventListener('click', loadAll);
-loadAll();
+if (refreshBtn) {
+  refreshBtn.addEventListener('click', loadAll);
+  loadAll();
+}
 
 // --- EVE SSO CONFIGURATION ---
 const CLIENT_ID = 'ad56410943214f14875ece43370095f3';
@@ -75,8 +84,7 @@ function generateRandomString(length) {
   let result = '';
   const values = crypto.getRandomValues(new Uint8Array(length));
   values.forEach(v => result += chars[v % chars.length]);
-
-return result;
+  return result;
 }
 
 async function generateCodeChallenge(verifier) {
@@ -86,29 +94,43 @@ async function generateCodeChallenge(verifier) {
     .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-loginBtn.addEventListener('click', async () => {
-  const verifier = generateRandomString(64);
-  const state = generateRandomString(16);
+if (loginBtn) {
+  loginBtn.addEventListener('click', async () => {
+    const verifier = generateRandomString(64);
+    const state = generateRandomString(16);
 
-  sessionStorage.setItem('pkce_verifier', verifier);
-  sessionStorage.setItem('oauth_state', state);
+    sessionStorage.setItem('pkce_verifier', verifier);
+    sessionStorage.setItem('oauth_state', state);
 
-  const challenge = await generateCodeChallenge(verifier);
-  const authUrl = `https://login.eveonline.com/v2/oauth/authorize/?response_type=code` +
-    `&redirect_uri=${encodeURIComponent(CALLBACK_URL)}` +
-    `&client_id=${CLIENT_ID}` +
-    `&scope=${encodeURIComponent(SCOPES)}` +
-    `&code_challenge=${challenge}` +
-    `&code_challenge_method=S256` +
-    `&state=${state}`;
+    const challenge = await generateCodeChallenge(verifier);
+    const authUrl = `https://login.eveonline.com/v2/oauth/authorize/?response_type=code` +
+      `&redirect_uri=${encodeURIComponent(CALLBACK_URL)}` +
+      `&client_id=${CLIENT_ID}` +
+      `&scope=${encodeURIComponent(SCOPES)}` +
+      `&code_challenge=${challenge}` +
+      `&code_challenge_method=S256` +
+      `&state=${state}`;
 
-  window.location.href = authUrl;
-});
+    window.location.href = authUrl;
+  });
+}
 
 async function handleCallback() {
   const params = new URLSearchParams(window.location.search);
   const code = params.get('code');
   const verifier = sessionStorage.getItem('pkce_verifier');
+
+  // If already logged in during this browser session, restore pilot name & assets
+  const savedName = sessionStorage.getItem('eve_char_name');
+  const savedId = sessionStorage.getItem('eve_char_id');
+  const savedToken = sessionStorage.getItem('eve_access_token');
+
+  if (!code && savedName && savedId && savedToken) {
+    pilotInfoEl.textContent = `Logged in as: ${savedName}`;
+    loginBtn.style.display = 'none';
+    if (assetListEl) fetchCharacterAssets(savedId, savedToken);
+    return;
+  }
 
   if (!code || !verifier) return;
 
@@ -138,8 +160,14 @@ async function handleCallback() {
     const characterName = payload.name;
     const characterId = payload.sub.split(':')[2];
 
+    sessionStorage.setItem('eve_char_name', characterName);
+    sessionStorage.setItem('eve_char_id', characterId);
+    sessionStorage.setItem('eve_access_token', tokenData.access_token);
+
     pilotInfoEl.textContent = `Logged in as: ${characterName}`;
-    await fetchCharacterAssets(characterId, tokenData.access_token);
+    if (assetListEl) {
+      await fetchCharacterAssets(characterId, tokenData.access_token);
+    }
   } catch (err) {
     pilotInfoEl.textContent = 'Login failed. Check console for details.';
     loginBtn.style.display = 'inline-block';
@@ -147,6 +175,7 @@ async function handleCallback() {
 }
 
 async function fetchCharacterAssets(characterId, accessToken) {
+  if (!assetListEl) return;
   assetListEl.innerHTML = '<li>Scanning station hangars...</li>';
 
   const assetsRes = await fetch(
