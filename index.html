@@ -4,25 +4,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eve Online Tracker </title>
+    <title>Eve Online Tracker</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <div class="container"></div>
-        <h1:>Eve Online Live Tracker</h1:>
-   <div class="card">
-        <h2>Tranquility Server Status </h2>
-        <p id="server-status">Fetching from ESI...</p>
-        <p id="player-count"></p>
-   </div>
+    <div class="container">
+        <h1>Eve Online Live Tracker</h1>
 
-   <div class="card">
-        <h2>Plex Market Tracker (Global Average)</h2>
-        <p id="plex-price">Loading market Data...</p>
-        <button id="refresh-btn">Refresh Data</button>
+        <div class="card">
+            <h2>Tranquility Server Status</h2>
+            <p id="server-status">Fetching from ESI...</p>
+            <p id="player-count"></p>
+        </div>
 
-    <div class="card">
+        <div class="card">
+            <h2>Plex Market Tracker (Global Average)</h2>
+            <p id="plex-price">Loading market Data...</p>
+            <button id="refresh-btn">Refresh Data</button>
+        </div>
+
+        <div class="card">
             <h2>Pilot Assets & Materials</h2>
             <div id="auth-section">
                 <p id="pilot-info">Log in with EVE SSO to view your hangar assets.</p>
@@ -30,7 +32,9 @@
             </div>
             <ul id="asset-list"></ul>
         </div>
-   </div>
-   <script src="app.js"></script>
+    </div>
+
+    <script src="app.js"></script>
 </body>
+
 </html>
