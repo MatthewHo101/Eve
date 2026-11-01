@@ -9,28 +9,59 @@
 </head>
 
 <body>
+    <!-- Top Navigation Bar -->
+    <nav class="top-nav">
+        <button class="nav-link active" data-target="command-deck">COMMAND DECK</button>
+        <button class="nav-link" data-target="my-characters">MY CHARACTERS</button>
+        <button class="nav-link" data-target="doctrines">DOCTRINES</button>
+        <a class="nav-link" href="https://zkillboard.com/" target="_blank">ZKILLBOARD</a>
+    </nav>
+
     <div class="container">
-        <h1>Eve Online Live Tracker</h1>
+        <!-- PAGE 1: COMMAND DECK -->
+        <div id="command-deck" class="page-view active-view">
+            <h1>Command Deck</h1>
 
-        <div class="card">
-            <h2>Tranquility Server Status</h2>
-            <p id="server-status">Fetching from ESI...</p>
-            <p id="player-count"></p>
-        </div>
-
-        <div class="card">
-            <h2>Plex Market Tracker (Global Average)</h2>
-            <p id="plex-price">Loading market Data...</p>
-            <button id="refresh-btn">Refresh Data</button>
-        </div>
-
-        <div class="card">
-            <h2>Pilot Assets & Materials</h2>
-            <div id="auth-section">
-                <p id="pilot-info">Log in with EVE SSO to view your hangar assets.</p>
-                <button id="login-btn">Log In with EVE Online</button>
+            <div class="card">
+                <h2>Tranquility Server Status</h2>
+                <p id="server-status">Fetching from ESI...</p>
+                <p id="player-count"></p>
             </div>
-            <ul id="asset-list"></ul>
+
+            <div class="card">
+                <h2>Plex Market Tracker (Global Average)</h2>
+                <p id="plex-price">Loading market Data...</p>
+                <button id="refresh-btn">Refresh Data</button>
+            </div>
+        </div>
+
+        <!-- PAGE 2: MY CHARACTERS (Assets & Industry) -->
+        <div id="my-characters" class="page-view">
+            <h1>My Characters & Assets</h1>
+
+            <div class="card">
+                <h2>Pilot Assets & Materials</h2>
+                <div id="auth-section">
+                    <p id="pilot-info">Log in with EVE SSO to view your hangar assets.</p>
+                    <button id="login-btn">Log In with EVE Online</button>
+                </div>
+                <ul id="asset-list"></ul>
+            </div>
+        </div>
+
+        <!-- PAGE 3: DOCTRINES -->
+        <div id="doctrines" class="page-view">
+            <h1>Fleet Doctrines</h1>
+
+            <div class="card">
+                <h2>Shield Cruiser Doctrine - Gila</h2>
+                <p>Primary fleet mainline ship. Ensure T2 Invulnerability Fields and Medium Drone Operation V.</p>
+            </div>
+
+            <div class="card">
+                <h2>Logistics Wing - Basilisk</h2>
+                <p>Cap-chain shield logistics. Bring at least 200 Navy Cap Booster 800s in cargo.</p>
+            </div>
         </div>
     </div>
 
