@@ -198,3 +198,11 @@ button.nav-link.active {
   background: #ef4444;
   color: #ffffff;
 }
+
+/* Sub-navigation tabs inside pages like Fits */
+.sub-nav {
+  display: flex;
+  gap: 20px;
+  border-bottom: 1px solid #1f2937;
+  margin-bottom: 20px;
+}

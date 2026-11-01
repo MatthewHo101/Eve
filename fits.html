@@ -27,14 +27,36 @@
     <div class="container">
         <h1>Fleet Fits & Doctrines</h1>
 
-        <div class="card">
-            <h2>Shield Cruiser Doctrine - Gila</h2>
-            <p>Primary fleet mainline ship. Ensure T2 Invulnerability Fields and Medium Drone Operation V.</p>
+        <!-- Sub-Tabs for Fits Page -->
+        <div class="sub-nav">
+            <button class="nav-link active" data-target="corp-doctrines">CORPORATION DOCTRINE FITS</button>
+            <button class="nav-link" data-target="fits-test">FITS TEST</button>
         </div>
 
-        <div class="card">
-            <h2>Logistics Wing - Basilisk</h2>
-            <p>Cap-chain shield logistics. Bring at least 200 Navy Cap Booster 800s in cargo.</p>
+        <!-- TAB 1: CORPORATION DOCTRINE FITS -->
+        <div id="corp-doctrines" class="page-view active-view">
+            <div class="card">
+                <h2>Shield Cruiser Doctrine - Gila</h2>
+                <p>Primary fleet mainline ship. Ensure T2 Invulnerability Fields and Medium Drone Operation V.</p>
+            </div>
+
+            <div class="card">
+                <h2>Logistics Wing - Basilisk</h2>
+                <p>Cap-chain shield logistics. Bring at least 200 Navy Cap Booster 800s in cargo.</p>
+            </div>
+        </div>
+
+        <!-- TAB 2: FITS TEST -->
+        <div id="fits-test" class="page-view">
+            <div class="card">
+                <h2>Experimental Fit - Drake Navy Issue</h2>
+                <p>Theorycrafted heavy missile brawl fit currently undergoing fleet testing.</p>
+            </div>
+
+            <div class="card">
+                <h2>Test Tackle - Interceptor</h2>
+                <p>High-speed fleet point and scout configuration for testing.</p>
+            </div>
         </div>
     </div>
 
