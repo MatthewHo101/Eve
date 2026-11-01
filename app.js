@@ -3,6 +3,29 @@ const playersEl = document.getElementById('player-count');
 const plexEl = document.getElementById('plex-price');
 const refreshBtn = document.getElementById('refresh-btn');
 
+// --- PAGE NAVIGATION LOGIC ---
+const navButtons = document.querySelectorAll('.nav-link[data-target]');
+const pages = document.querySelectorAll('.page-view');
+
+function switchPage(targetId) {
+  pages.forEach(page => page.classList.remove('active-view'));
+  navButtons.forEach(btn => btn.classList.remove('active'));
+
+  const targetPage = document.getElementById(targetId);
+  if (targetPage) targetPage.classList.add('active-view');
+
+  const activeBtn = document.querySelector(`.nav-link[data-target="${targetId}"]`);
+  if (activeBtn) activeBtn.classList.add('active');
+}
+
+navButtons.forEach(button => {
+  button.addEventListener('click', () => {
+    const targetId = button.getAttribute('data-target');
+    switchPage(targetId);
+  });
+});
+
+// --- COMMAND DECK ESI DATA ---
 async function fetchServerStatus() {
   try {
     const response = await fetch('https://esi.evetech.net/latest/status/?datasource=tranquility');
@@ -47,7 +70,6 @@ const loginBtn = document.getElementById('login-btn');
 const pilotInfoEl = document.getElementById('pilot-info');
 const assetListEl = document.getElementById('asset-list');
 
-// 1. Helper functions to generate the PKCE security code
 function generateRandomString(length) {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
   let result = '';
@@ -63,7 +85,6 @@ async function generateCodeChallenge(verifier) {
     .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-// 2. Redirect the user to CCP's login page when they click the button
 loginBtn.addEventListener('click', async () => {
   const verifier = generateRandomString(64);
   const state = generateRandomString(16);
@@ -83,13 +104,15 @@ loginBtn.addEventListener('click', async () => {
   window.location.href = authUrl;
 });
 
-// 3. Check if the user just returned from logging into EVE SSO
 async function handleCallback() {
   const params = new URLSearchParams(window.location.search);
   const code = params.get('code');
   const verifier = sessionStorage.getItem('pkce_verifier');
 
   if (!code || !verifier) return;
+
+  // Automatically jump to the My Characters tab when returning from login
+  switchPage('my-characters');
 
   pilotInfoEl.textContent = 'Authenticating with CONCORD...';
   loginBtn.style.display = 'none';
@@ -112,55 +135,3 @@ async function handleCallback() {
     const tokenData = await tokenRes.json();
 
     const payload = JSON.parse(atob(tokenData.access_token.split('.')[1]));
-    const characterName = payload.name;
-    const characterId = payload.sub.split(':')[2];
-
-    pilotInfoEl.textContent = `Logged in as: ${characterName}`;
-    await fetchCharacterAssets(characterId, tokenData.access_token);
-  } catch (err) {
-    pilotInfoEl.textContent = 'Login failed. Check console for details.';
-    loginBtn.style.display = 'inline-block';
-  }
-}
-
-// 4. Fetch Character Assets & Convert Type IDs into Item Names
-async function fetchCharacterAssets(characterId, accessToken) {
-  assetListEl.innerHTML = '<li>Scanning station hangars...</li>';
-
-  const assetsRes = await fetch(
-    `https://esi.evetech.net/latest/characters/${characterId}/assets/?datasource=tranquility`,
-    { headers: { Authorization: `Bearer ${accessToken}` } }
-  );
-  const assets = await assetsRes.json();
-
-  const totals = {};
-  assets.forEach(item => {
-    totals[item.type_id] = (totals[item.type_id] || 0) + item.quantity;
-  });
-
-  const uniqueTypeIds = Object.keys(totals).slice(0, 50).map(Number);
-  if (uniqueTypeIds.length === 0) {
-    assetListEl.innerHTML = '<li>No assets found.</li>';
-    return;
-  }
-
-  const namesRes = await fetch(
-    'https://esi.evetech.net/latest/universe/names/?datasource=tranquility',
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(uniqueTypeIds)
-    }
-  );
-  const namesData = await namesRes.json();
-
-  assetListEl.innerHTML = '';
-  namesData.forEach(entry => {
-    const li = document.createElement('li');
-    const qty = totals[entry.id].toLocaleString();
-    li.innerHTML = `<span>${entry.name}</span> <span class="qty">x${qty}</span>`;
-    assetListEl.appendChild(li);
-  });
-}
-
-handleCallback();
