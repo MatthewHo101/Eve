@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eve Online Tracker - Fits</title>
+    <title>Eve Online Tracker - Fits Workbench</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -24,13 +24,13 @@
         </div>
     </nav>
 
-    <div class="container">
+    <div class="container wide-container">
         <h1>Fleet Fits & Doctrines</h1>
 
         <!-- Sub-Tabs for Fits Page -->
         <div class="sub-nav">
             <button class="nav-link active" data-target="corp-doctrines">CORPORATION DOCTRINE FITS</button>
-            <button class="nav-link" data-target="fits-test">FITS TEST</button>
+            <button class="nav-link" data-target="fits-test">FITS TEST (WORKBENCH)</button>
         </div>
 
         <!-- TAB 1: CORPORATION DOCTRINE FITS -->
@@ -46,16 +46,144 @@
             </div>
         </div>
 
-        <!-- TAB 2: FITS TEST -->
+        <!-- TAB 2: EVE WORKBENCH STYLE FITTING TOOL -->
         <div id="fits-test" class="page-view">
-            <div class="card">
-                <h2>Experimental Fit - Drake Navy Issue</h2>
-                <p>Theorycrafted heavy missile brawl fit currently undergoing fleet testing.</p>
-            </div>
+            <div class="workbench-grid">
 
-            <div class="card">
-                <h2>Test Tackle - Interceptor</h2>
-                <p>High-speed fleet point and scout configuration for testing.</p>
+                <!-- LEFT PANEL: HULL & MODULE BROWSER -->
+                <div class="card wb-panel">
+                    <h2>1. Select Ship Hull</h2>
+                    <select id="hull-select" class="wb-input"></select>
+
+                    <h2>2. Module Database</h2>
+                    <input type="text" id="mod-search" class="wb-input" placeholder="Search modules (e.g. Shield, Missile, MWD)...">
+                    
+                    <div class="slot-filter-bar">
+                        <button class="slot-filter active" data-slot="ALL">All</button>
+                        <button class="slot-filter" data-slot="high">High</button>
+                        <button class="slot-filter" data-slot="mid">Mid</button>
+                        <button class="slot-filter" data-slot="low">Low</button>
+                        <button class="slot-filter" data-slot="rig">Rig</button>
+                    </div>
+
+                    <ul id="module-catalog" class="wb-list"></ul>
+
+                    <h2>Import / Export EFT</h2>
+                    <textarea id="eft-box" class="wb-textarea" placeholder="[Gila, Fleet Doctrine]..."></textarea>
+                    <div class="wb-btn-row">
+                        <button id="import-eft-btn">Import EFT</button>
+                        <button id="export-eft-btn">Copy EFT</button>
+                    </div>
+                </div>
+
+                <!-- CENTER PANEL: SHIP RACK & SLOTS -->
+                <div class="card wb-panel">
+                    <div class="ship-banner">
+                        <img id="ship-render" src="https://images.evetech.net/types/17715/render?size=256" alt="Ship">
+                        <div>
+                            <h2 id="wb-ship-name">Gila</h2>
+                            <p id="wb-ship-role" class="sub-text">Guristas Cruiser • Click any fitted module to unequip</p>
+                        </div>
+                        <button id="clear-fit-btn" class="danger-btn">Clear Fit</button>
+                    </div>
+
+                    <div class="rack-section">
+                        <h3>High Power Slots <span id="high-count"></span></h3>
+                        <div id="rack-high" class="slot-rack"></div>
+
+                        <h3>Medium Power Slots <span id="mid-count"></span></h3>
+                        <div id="rack-mid" class="slot-rack"></div>
+
+                        <h3>Low Power Slots <span id="low-count"></span></h3>
+                        <div id="rack-low" class="slot-rack"></div>
+
+                        <h3>Rig Slots <span id="rig-count"></span></h3>
+                        <div id="rack-rig" class="slot-rack"></div>
+                    </div>
+                </div>
+
+                <!-- RIGHT PANEL: DETAILED STATS (EVE WORKBENCH STYLE) -->
+                <div class="card wb-panel">
+                    <h2>Fitting Resources</h2>
+                    
+                    <div class="stat-bar-group">
+                        <div class="stat-label-row">
+                            <span>CPU Output</span>
+                            <span id="cpu-text">0 / 0 tf</span>
+                        </div>
+                        <div class="progress-track"><div id="cpu-bar" class="progress-fill"></div></div>
+                    </div>
+
+                    <div class="stat-bar-group">
+                        <div class="stat-label-row">
+                            <span>Powergrid</span>
+                            <span id="pg-text">0 / 0 MW</span>
+                        </div>
+                        <div class="progress-track"><div id="pg-bar" class="progress-fill"></div></div>
+                    </div>
+
+                    <div class="stat-bar-group">
+                        <div class="stat-label-row">
+                            <span>Calibration (Rigs)</span>
+                            <span id="cal-text">0 / 400</span>
+                        </div>
+                        <div class="progress-track"><div id="cal-bar" class="progress-fill"></div></div>
+                    </div>
+
+                    <h2>Firepower & Offense</h2>
+                    <div class="stat-grid">
+                        <div class="stat-box">
+                            <span class="stat-title">Total DPS</span>
+                            <strong id="stat-dps" class="stat-val highlight-gold">0.0 DPS</strong>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-title">Alpha Volley</span>
+                            <strong id="stat-alpha" class="stat-val">0</strong>
+                        </div>
+                    </div>
+
+                    <h2>Defense & EHP</h2>
+                    <div class="stat-box full-width">
+                        <span class="stat-title">Effective Hit Points (EHP)</span>
+                        <strong id="stat-ehp" class="stat-val highlight-cyan">0 EHP</strong>
+                    </div>
+
+                    <div class="resist-table">
+                        <div class="resist-row">
+                            <span>Shield HP</span>
+                            <strong id="stat-shield">0</strong>
+                        </div>
+                        <div class="resist-row">
+                            <span>Armor HP</span>
+                            <strong id="stat-armor">0</strong>
+                        </div>
+                        <div class="resist-row">
+                            <span>Structure HP</span>
+                            <strong id="stat-hull">0</strong>
+                        </div>
+                    </div>
+
+                    <h2>Navigation & Targeting</h2>
+                    <div class="stat-grid">
+                        <div class="stat-box">
+                            <span class="stat-title">Max Velocity</span>
+                            <strong id="stat-speed" class="stat-val">0 m/s</strong>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-title">Align Time</span>
+                            <strong id="stat-align" class="stat-val">0.0 s</strong>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-title">Signature</span>
+                            <strong id="stat-sig" class="stat-val">0 m</strong>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-title">Est. Price (ESI)</span>
+                            <strong id="stat-isk" class="stat-val highlight-green">0M ISK</strong>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
