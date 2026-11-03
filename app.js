@@ -161,6 +161,13 @@ if (hullSelectEl) {
   const modSearchEl = document.getElementById('mod-search');
   const catalogEl = document.getElementById('module-catalog');
   const filterBtns = document.querySelectorAll('.slot-filter-bar .slot-filter');
+  let drawFittingRing;
+  if (document.getElementById('workbench-fitting-ring')) {
+    import('./fitting-ring.js').then(({ renderFittingRing }) => {
+      drawFittingRing = renderFittingRing;
+      updateWorkbenchUI();
+    });
+  }
 
   function getAttr(typeData, attrId, fallback = 0) {
     if (!typeData || !typeData.dogma_attributes) return fallback;
@@ -522,6 +529,26 @@ if (hullSelectEl) {
     renderRack('mid', 'rack-mid', 'mid-count');
     renderRack('low', 'rack-low', 'low-count');
     renderRack('rig', 'rack-rig', 'rig-count');
+
+    if (drawFittingRing) {
+      const racks = Object.fromEntries(['high', 'mid', 'low', 'rig'].map(rack => [rack,
+        Array.from({ length: currentHull[rack] || 0 }, (_, index) => {
+          const mod = fitted[rack][index];
+          return mod ? { name: mod.name, typeId: mod.id } : null;
+        })]));
+      drawFittingRing(document.getElementById('workbench-fitting-ring'), {
+        name: currentHull.name, typeId: currentHull.id, racks,
+        onSlotClick(rack, index, item) {
+          if (item) return unequipModule(rack, index);
+          activeSlotFilter = rack;
+          filterBtns.forEach(button => button.classList.toggle('active', button.dataset.slot === rack));
+          modSearchEl.value = '';
+          renderCatalog();
+          modSearchEl.focus({ preventScroll: true });
+          modSearchEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      });
+    }
 
     const allMods = [...fitted.high, ...fitted.mid, ...fitted.low, ...fitted.rig];
     let usedCpu = 0, usedPg = 0, usedCal = 0;

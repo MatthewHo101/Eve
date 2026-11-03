@@ -7,6 +7,7 @@
     <title>Eve Online Tracker - Fits Workbench</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="doctrine.css">
+    <link rel="stylesheet" href="fitting-ring.css">
 </head>
 
 <body class="fits-page">
@@ -70,18 +71,7 @@
                     <div class="doctrine-fitting">
                         <div class="doctrine-visual">
                             <div class="doctrine-visual-meta"><span>FITTING OVERVIEW</span><span id="doctrine-hull-class"></span></div>
-                            <div class="doctrine-orbit">
-                                <div class="doctrine-ship-window">
-                                    <span class="doctrine-render-fallback" hidden>Ship render unavailable</span>
-                                    <img id="doctrine-ship" alt="" width="512" height="512">
-                                </div>
-                                <span class="doctrine-orbit-label orbit-high">High power</span>
-                                <span class="doctrine-orbit-label orbit-mid">Medium power</span>
-                                <span class="doctrine-orbit-label orbit-low">Low power</span>
-                                <span class="doctrine-orbit-label orbit-rig">Rig slots</span>
-                                <div id="doctrine-orbit-slots"></div>
-                                <strong id="doctrine-hull-label" class="doctrine-hull-label"></strong>
-                            </div>
+                            <div id="doctrine-fitting-ring" class="fitting-ring"></div>
                             <div id="doctrine-slot-summary" class="doctrine-slot-summary"></div>
                             <p class="doctrine-visual-caption">Ship render and item icons supplied by EVE Online.</p>
                         </div>
@@ -144,8 +134,6 @@
                     <!-- Text Filter & Hull Dropdown -->
                     <input type="text" id="hull-search" class="wb-input" placeholder="Search hull name (e.g. Tengu, Drake, Vargur)...">
                     <select id="hull-select" class="wb-input"></select>
-                    <input type="text" id="hull-search" class="wb-input" placeholder="Filter 450+ hulls (e.g. Tengu, Drake, Vargur)...">
-                    <select id="hull-select" class="wb-input"></select>
 
                     <h2>2. Module Database</h2>
                     <input type="text" id="mod-search" class="wb-input" placeholder="Search modules (e.g. Shield, Missile, MWD)...">
@@ -169,7 +157,7 @@
                 </div>
 
                 <!-- CENTER PANEL: SHIP RACK & SLOTS -->
-                <div class="card wb-panel">
+                <div class="card wb-panel workbench-ship-panel">
                     <div class="ship-banner">
                         <img id="ship-render" src="https://images.evetech.net/types/17715/render?size=256" alt="Ship">
                         <div>
@@ -179,18 +167,31 @@
                         <button id="clear-fit-btn" class="danger-btn">Clear Fit</button>
                     </div>
 
+                    <div class="workbench-ring-stage">
+                        <div id="workbench-fitting-ring" class="fitting-ring"></div>
+                        <p class="workbench-ring-help">Click a fitted module to remove it. Click an empty slot to browse matching modules.</p>
+                    </div>
+
                     <div class="rack-section">
-                        <h3>High Power Slots <span id="high-count"></span></h3>
-                        <div id="rack-high" class="slot-rack"></div>
+                        <section>
+                            <h3>High Power Slots <span id="high-count"></span></h3>
+                            <div id="rack-high" class="slot-rack"></div>
+                        </section>
 
-                        <h3>Medium Power Slots <span id="mid-count"></span></h3>
-                        <div id="rack-mid" class="slot-rack"></div>
+                        <section>
+                            <h3>Medium Power Slots <span id="mid-count"></span></h3>
+                            <div id="rack-mid" class="slot-rack"></div>
+                        </section>
 
-                        <h3>Low Power Slots <span id="low-count"></span></h3>
-                        <div id="rack-low" class="slot-rack"></div>
+                        <section>
+                            <h3>Low Power Slots <span id="low-count"></span></h3>
+                            <div id="rack-low" class="slot-rack"></div>
+                        </section>
 
-                        <h3>Rig Slots <span id="rig-count"></span></h3>
-                        <div id="rack-rig" class="slot-rack"></div>
+                        <section>
+                            <h3>Rig Slots <span id="rig-count"></span></h3>
+                            <div id="rack-rig" class="slot-rack"></div>
+                        </section>
                     </div>
                 </div>
 

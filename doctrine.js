@@ -1,4 +1,5 @@
 import { DOCTRINE_FITS, RACKS, filterFits, exportFit } from './doctrine-data.js';
+import { renderFittingRing } from './fitting-ring.js';
 
 const byId = id => document.getElementById(id);
 let selected = DOCTRINE_FITS.find(fit => fit.id === new URLSearchParams(location.search).get('doctrine')) || DOCTRINE_FITS[0];
@@ -91,21 +92,11 @@ function renderModules() {
     return section;
   }));
 
-  // Keep each fitted slot separate, including repeated modules, as in EVE's fitting view.
-  byId('doctrine-orbit-slots').replaceChildren(...RACKS.slice(0, 4).flatMap(([key]) => {
-    const names = selected.modules[key];
-    const centers = { high: -90, mid: 0, low: 90, rig: 180 };
-    return names.map((name, index) => {
-      const angle = centers[key] + (index - (names.length - 1) / 2) * 11;
-      const radians = angle * Math.PI / 180;
-      const slot = element('span', 'doctrine-orbit-slot');
-      slot.style.left = `${50 + 44 * Math.cos(radians)}%`;
-      slot.style.top = `${50 + 44 * Math.sin(radians)}%`;
-      slot.title = `${name} · ${key === 'mid' ? 'Medium' : key} slot`;
-      slot.append(moduleIcon(name, key));
-      return slot;
-    });
-  }));
+  renderFittingRing(byId('doctrine-fitting-ring'), {
+    name: selected.hull, typeId: selected.typeId,
+    racks: Object.fromEntries(RACKS.slice(0, 4).map(([key]) => [key,
+      selected.modules[key].map(name => ({ name, typeId: itemIds[name] }))]))
+  });
 }
 
 function renderDetail() {
@@ -113,14 +104,6 @@ function renderDetail() {
   byId('doctrine-role').textContent = selected.role;
   byId('doctrine-description').textContent = selected.description;
   byId('doctrine-hull-class').textContent = selected.className;
-  byId('doctrine-hull-label').textContent = selected.hull;
-  const ship = byId('doctrine-ship');
-  const fallback = document.querySelector('.doctrine-render-fallback');
-  ship.hidden = false;
-  fallback.hidden = true;
-  ship.onerror = () => { ship.hidden = true; fallback.hidden = false; };
-  ship.src = shipImage(selected, 512);
-  ship.alt = `${selected.hull} ship render`;
   byId('doctrine-copy-status').textContent = '';
   byId('doctrine-slot-summary').replaceChildren(...RACKS.slice(0, 4).map(([key, , label]) => {
     const cell = element('span');

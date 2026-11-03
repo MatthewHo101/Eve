@@ -1,0 +1,91 @@
+.fitting-ring {
+  width: 100%;
+  max-width: 660px;
+  aspect-ratio: 1;
+  position: relative;
+  flex-shrink: 0;
+  border: 1px solid #4d7868;
+  border-radius: 50%;
+  box-sizing: border-box;
+  background: repeating-conic-gradient(from 0deg, #719a8344 0deg .3deg, transparent .3deg 1.7deg);
+  isolation: isolate;
+}
+.fitting-ring::before {
+  content: '';
+  position: absolute;
+  inset: 1.5%;
+  border: clamp(4px, .8vw, 9px) solid #385e50;
+  border-radius: 50%;
+  background: radial-gradient(circle, #12261c, #07100c 70%);
+  z-index: -1;
+}
+.fitting-ring::after { content: ''; position: absolute; inset: 17.5%; border: 1px solid #33664f; border-radius: 50%; pointer-events: none; }
+.fitting-ring-ship { position: absolute; inset: 19%; border-radius: 50%; overflow: hidden; background: radial-gradient(ellipse at 70% 25%, #7595a6, #243b47 45%, #101e20 75%); }
+.fitting-ring-image { display: block; width: 100%; height: 100%; object-fit: cover; }
+.fitting-ring-image[hidden], .fitting-ring-fallback[hidden] { display: none; }
+.fitting-ring-fallback { position: absolute; top: 40%; left: 0; right: 0; text-align: center; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #b7c9ca; }
+.fitting-ring-labels { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.fitting-ring-labels text { font: 600 17px 'Segoe UI', Arial, sans-serif; letter-spacing: 3px; text-transform: uppercase; fill: #a6c1b3; }
+.fitting-ring .fitting-ring-slot {
+  box-sizing: border-box;
+  position: absolute;
+  width: var(--fitting-slot-size, 7%);
+  height: var(--fitting-slot-size, 7%);
+  transform: translate(-50%, -50%) rotate(var(--slot-angle));
+  padding: 3px;
+  border: 1px solid #719d88;
+  border-radius: 2px;
+  background: linear-gradient(145deg, #233e30, #0a1811);
+  box-shadow: inset 0 0 0 2px #06100c, 0 0 8px #7ca68e17;
+  display: grid;
+  place-items: center;
+  z-index: 2;
+}
+.fitting-ring-icon { display: grid; place-items: center; position: relative; width: 90%; height: 90%; transform: rotate(var(--icon-angle)); }
+.fitting-ring-icon::before { content: ''; width: 43%; height: 43%; transform: rotate(45deg); border: 1px solid #a4bd9b; box-shadow: 0 0 5px #8ca87566; }
+.fitting-ring-icon.icon-high::before { border-radius: 50%; border-color: #86c5dd; }
+.fitting-ring-icon.icon-mid::before { border-color: #8ddcc6; transform: rotate(30deg); }
+.fitting-ring-icon.icon-low::before { border-radius: 50%; border-color: #dfc06e; }
+.fitting-ring-icon.icon-rig::before { border-width: 2px; border-color: #a9c6ce; }
+.fitting-ring-icon img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.fitting-ring-slot.is-empty { border-color: #3e6351; border-style: dashed; background: #0b1a11; box-shadow: none; }
+.fitting-ring-slot.is-empty .fitting-ring-icon::before { border: 0; transform: none; width: 55%; height: 55%; background: linear-gradient(#799383, #799383) center / 1px 100% no-repeat, linear-gradient(#799383, #799383) center / 100% 1px no-repeat; box-shadow: none; }
+.fitting-ring button.fitting-ring-slot:hover { background: #284c37; border-color: #b8e6c6; }
+.fitting-ring button.fitting-ring-slot.is-filled:hover { border-color: #f99d8d; background: #40251b; }
+.fitting-ring button.fitting-ring-slot:focus-visible { outline: 2px solid #e3c36a; outline-offset: 3px; }
+.fitting-ring-hull { position: absolute; bottom: 25%; left: 50%; transform: translateX(-50%); padding: 6px 20px; max-width: 60%; font-size: clamp(8px, .7vw, 11px); text-align: center; text-transform: uppercase; letter-spacing: 2px; background: #060c08ee; border: 1px solid #a68a36; color: #f3d36f; z-index: 3; }
+
+/* Give the interactive ring room to breathe between the browser and stats. */
+.fits-page .workbench-grid { grid-template-columns: 300px minmax(0, 1fr) 290px; gap: 16px; }
+.workbench-grid > .wb-panel { min-width: 0; }
+.workbench-ship-panel .ship-banner { flex-wrap: wrap; }
+.workbench-ship-panel .ship-banner h2 { border: 0; padding-bottom: 0; }
+.workbench-ship-panel .ship-banner > div { flex: 1; min-width: 110px; }
+.workbench-ship-panel .ship-banner .danger-btn { flex-shrink: 0; }
+.workbench-ring-stage { padding: 16px 12px; border: 1px solid #294437; background: radial-gradient(ellipse at center, #12251c, #060d09 70%); margin-bottom: 20px; }
+.workbench-ring-stage .fitting-ring { margin: 0 auto; }
+.workbench-ring-help { margin: 14px 0 0; color: #9fb5a6; font-size: 10px; line-height: 1.7; text-align: center; }
+.workbench-ship-panel .rack-section { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.workbench-ship-panel .rack-section h3 { margin-top: 0; gap: 6px; }
+.workbench-ship-panel .slot-item { min-width: 0; font-size: 11px; padding: 6px; gap: 6px; }
+.workbench-ship-panel .slot-item .mod-item-left { min-width: 0; }
+.workbench-ship-panel .slot-item .mod-item-left span { overflow-wrap: anywhere; }
+.workbench-ship-panel .slot-item .mod-meta { flex-shrink: 0; font-size: 8px; }
+.workbench-ship-panel .slot-item.empty-slot { font-size: 10px; }
+@media (max-width: 1350px) {
+  .fits-page .workbench-grid { grid-template-columns: 260px minmax(0, 1fr); }
+  .fits-page .workbench-grid > .wb-panel:last-child { grid-column: 1 / -1; }
+}
+@media (max-width: 980px) {
+  .doctrine-visual .fitting-ring { max-width: 500px; }
+}
+@media (max-width: 800px) {
+  .fits-page .workbench-grid { grid-template-columns: minmax(0, 1fr); }
+  .workbench-ship-panel .rack-section { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 450px) {
+  .workbench-ship-panel { padding: 12px; }
+  .workbench-ring-stage { padding: 12px 2px; }
+  .fitting-ring .fitting-ring-slot { padding: 1px; }
+  .fitting-ring-hull { padding: 5px 12px; letter-spacing: 1px; }
+}
