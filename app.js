@@ -80,7 +80,6 @@ const rosterEl = document.getElementById('character-roster');
 const assetListEl = document.getElementById('asset-list');
 const assetHeaderEl = document.getElementById('asset-header');
 
-// Load saved characters dictionary from localStorage
 function getSavedCharacters() {
   const raw = localStorage.getItem('eve_characters');
   return raw ? JSON.parse(raw) : {};
@@ -135,7 +134,6 @@ if (loginBtn) {
   });
 }
 
-// Render the top-right counter and the clickable character cards
 function renderRoster(selectedId = 'ALL') {
   const chars = Object.values(getSavedCharacters());
   if (pilotInfoEl) {
@@ -155,7 +153,6 @@ function renderRoster(selectedId = 'ALL') {
 
   rosterEl.innerHTML = '';
 
-  // 1. Add "All Characters (Combined)" button if more than 1 character is linked
   if (chars.length > 1) {
     const allChip = document.createElement('div');
     allChip.className = `char-chip ${selectedId === 'ALL' ? 'active-char' : ''}`;
@@ -167,7 +164,6 @@ function renderRoster(selectedId = 'ALL') {
     rosterEl.appendChild(allChip);
   }
 
-  // 2. Add a portrait chip for each individual character
   chars.forEach(char => {
     const chip = document.createElement('div');
     const isSelected = selectedId === char.id || (chars.length === 1 && selectedId === 'ALL');
@@ -178,7 +174,6 @@ function renderRoster(selectedId = 'ALL') {
       <button class="remove-char" title="Remove character">&times;</button>
     `;
 
-    // Click chip to view that specific character's assets
     chip.addEventListener('click', (e) => {
       if (e.target.classList.contains('remove-char')) {
         e.stopPropagation();
@@ -193,7 +188,6 @@ function renderRoster(selectedId = 'ALL') {
   });
 }
 
-// Fetch and combine assets for 1 or all characters
 async function fetchCombinedAssets(charList) {
   if (!assetListEl) return;
 
@@ -283,7 +277,6 @@ async function handleCallback() {
     }
   }
 
-  // On normal page load, display any already-saved characters
   const existingChars = Object.values(getSavedCharacters());
   renderRoster('ALL');
   if (existingChars.length > 0) {
@@ -294,7 +287,6 @@ async function handleCallback() {
 handleCallback();
 
 // --- LIVE ESI ALL-SHIPS & ALL-MODULES WORKBENCH ENGINE ---
-// Official EVE Dogma Attribute & Effect IDs
 const DOGMA_ATTR = {
   CPU_OUTPUT: 48,
   PG_OUTPUT: 11,
@@ -327,23 +319,22 @@ const DOGMA_EFFECT = {
   RIG_SLOT: 2663
 };
 
-// Starter database available immediately while ESI indexes all 6,500+ items
 const STARTER_HULLS = [
-  { id: 17715, name: 'Gila' },
-  { id: 11985, name: 'Basilisk' },
-  { id: 33153, name: 'Drake Navy Issue' },
-  { id: 29984, name: 'Tengu' },
-  { id: 29986, name: 'Legion' },
-  { id: 29988, name: 'Proteus' },
-  { id: 29990, name: 'Loki' },
-  { id: 12005, name: 'Ishtar' },
-  { id: 28661, name: 'Kronos' },
-  { id: 28665, name: 'Vargur' },
-  { id: 28659, name: 'Paladin' },
-  { id: 28710, name: 'Golem' },
-  { id: 626, name: 'Vexor' },
-  { id: 24690, name: 'Ferox' },
-  { id: 645, name: 'Dominix' }
+  { id: 17715, name: 'Gila', className: 'Cruiser', nation: 'Pirate' },
+  { id: 11985, name: 'Basilisk', className: 'Logistics', nation: 'Caldari' },
+  { id: 33153, name: 'Drake Navy Issue', className: 'Combat Battlecruiser', nation: 'Caldari' },
+  { id: 29984, name: 'Tengu', className: 'Strategic Cruiser', nation: 'Caldari' },
+  { id: 29986, name: 'Legion', className: 'Strategic Cruiser', nation: 'Amarr' },
+  { id: 29988, name: 'Proteus', className: 'Strategic Cruiser', nation: 'Gallente' },
+  { id: 29990, name: 'Loki', className: 'Strategic Cruiser', nation: 'Minmatar' },
+  { id: 12005, name: 'Ishtar', className: 'Heavy Assault Cruiser', nation: 'Gallente' },
+  { id: 28661, name: 'Kronos', className: 'Marauder', nation: 'Gallente' },
+  { id: 28665, name: 'Vargur', className: 'Marauder', nation: 'Minmatar' },
+  { id: 28659, name: 'Paladin', className: 'Marauder', nation: 'Amarr' },
+  { id: 28710, name: 'Golem', className: 'Marauder', nation: 'Caldari' },
+  { id: 626, name: 'Vexor', className: 'Cruiser', nation: 'Gallente' },
+  { id: 24690, name: 'Ferox', className: 'Combat Battlecruiser', nation: 'Caldari' },
+  { id: 645, name: 'Dominix', className: 'Battleship', nation: 'Gallente' }
 ];
 
 const STARTER_MODULES = [
@@ -370,7 +361,7 @@ if (hullSelectEl) {
   let esiPriceMap = {};
 
   let currentHull = {
-    id: 17715, name: 'Gila', role: 'Live ESI Dogma Hull',
+    id: 17715, name: 'Gila', role: 'Cruiser • Pirate',
     high: 5, mid: 6, low: 3, rig: 3,
     cpu: 515, pg: 1050, cal: 400,
     shield: 3600, armor: 1950, hull: 1900,
@@ -378,21 +369,49 @@ if (hullSelectEl) {
   };
   let fitted = { high: [], mid: [], low: [], rig: [] };
   let activeSlotFilter = 'ALL';
+  let activeNationFilter = 'ALL';
 
   const syncStatusEl = document.getElementById('esi-sync-status');
   const hullSearchEl = document.getElementById('hull-search');
+  const classSelectEl = document.getElementById('class-select');
+  const nationBtns = document.querySelectorAll('#nation-filter-bar .slot-filter');
   const modSearchEl = document.getElementById('mod-search');
   const catalogEl = document.getElementById('module-catalog');
-  const filterBtns = document.querySelectorAll('.slot-filter');
+  const filterBtns = document.querySelectorAll('.slot-filter-bar .slot-filter');
 
-  // Helper to read Dogma attribute value from ESI type response
   function getAttr(typeData, attrId, fallback = 0) {
     if (!typeData || !typeData.dogma_attributes) return fallback;
     const found = typeData.dogma_attributes.find(a => a.attribute_id === attrId);
     return found ? found.value : fallback;
   }
 
-  // Fetch exact Dogma stats for any Ship Hull or Module ID from ESI
+  nationBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      nationBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeNationFilter = btn.getAttribute('data-nation');
+      renderHullDropdown();
+    });
+  });
+
+  if (classSelectEl) {
+    classSelectEl.addEventListener('change', renderHullDropdown);
+  }
+
+  function populateClassDropdown() {
+    if (!classSelectEl) return;
+    const currentVal = classSelectEl.value || 'ALL';
+    const classes = [...new Set(allHullsList.map(h => h.className).filter(Boolean))].sort();
+    classSelectEl.innerHTML = `<option value="ALL">All Ship Classes (${classes.length})</option>`;
+    classes.forEach(cls => {
+      const opt = document.createElement('option');
+      opt.value = cls;
+      opt.textContent = cls;
+      if (cls === currentVal) opt.selected = true;
+      classSelectEl.appendChild(opt);
+    });
+  }
+
   async function fetchTypeDogma(typeId) {
     if (dogmaCache[typeId]) return dogmaCache[typeId];
     const res = await fetch(`https://esi.evetech.net/latest/universe/types/${typeId}/?datasource=tranquility`);
@@ -404,10 +423,14 @@ if (hullSelectEl) {
     return data;
   }
 
-  // Convert ESI Type JSON into a playable Ship Hull object
   async function loadHullFromESI(typeId) {
     if (syncStatusEl) syncStatusEl.textContent = '(Loading hull Dogma...)';
     const data = await fetchTypeDogma(typeId);
+    const raceMap = { 1: 'Caldari', 2: 'Minmatar', 4: 'Amarr', 8: 'Gallente', 128: 'ORE' };
+    const detectedNation = raceMap[data.race_id] || 'Pirate';
+    const hullEntry = allHullsList.find(h => h.id === data.type_id);
+    if (hullEntry && !hullEntry.nation) hullEntry.nation = detectedNation;
+
     const mass = getAttr(data, DOGMA_ATTR.MASS, 12000000);
     const inertia = getAttr(data, DOGMA_ATTR.INERTIA, 0.5);
     const alignTime = +((Math.log(2) * mass * inertia) / 500000).toFixed(1);
@@ -415,7 +438,7 @@ if (hullSelectEl) {
     currentHull = {
       id: data.type_id,
       name: data.name,
-      role: `Group ID ${data.group_id} • Live ESI Hull`,
+      role: `${hullEntry ? hullEntry.className : 'Ship'} • ${detectedNation}`,
       high: getAttr(data, DOGMA_ATTR.HIGH_SLOTS, 4),
       mid: getAttr(data, DOGMA_ATTR.MID_SLOTS, 4),
       low: getAttr(data, DOGMA_ATTR.LOW_SLOTS, 4),
@@ -437,7 +460,6 @@ if (hullSelectEl) {
     updateWorkbenchUI();
   }
 
-  // Convert ESI Type JSON into an equippable Module with exact slot & CPU/PG
   async function resolveModuleDogma(modEntry) {
     if (modEntry.slot && modEntry.cpu !== undefined) return modEntry;
     const data = await fetchTypeDogma(modEntry.id);
@@ -465,48 +487,80 @@ if (hullSelectEl) {
     return resolved;
   }
 
-  // Background ESI Crawler: Fetches all published ships (Cat 6) & modules (Cat 7)
   async function syncAllEveItemsFromESI() {
-    const cachedShips = localStorage.getItem('eve_all_ships_v1');
+    const cachedShips = localStorage.getItem('eve_all_ships_v2');
     const cachedMods = localStorage.getItem('eve_all_mods_v1');
 
     if (cachedShips && cachedMods) {
       allHullsList = JSON.parse(cachedShips);
       allModulesList = JSON.parse(cachedMods);
+      populateClassDropdown();
       renderHullDropdown();
       renderCatalog();
-      if (syncStatusEl) syncStatusEl.textContent = `(${allHullsList.length} hulls & ${allModulesList.length} modules loaded)`;
+      if (syncStatusEl) syncStatusEl.textContent = `(${allHullsList.length} hulls & ${allModulesList.length} modules ready)`;
       return;
     }
 
-    if (syncStatusEl) syncStatusEl.textContent = '(Indexing all EVE ships & modules from ESI...)';
+    if (syncStatusEl) syncStatusEl.textContent = '(Indexing ship classes, nations & modules from ESI...)';
 
     try {
-      // 1. Fetch Category 6 (All Ship Groups) & Category 7 (All Module Groups)
-      const [shipCatRes, modCatRes] = await Promise.all([
+      const [shipCatRes, modCatRes, mktGroupsRes] = await Promise.all([
         fetch('https://esi.evetech.net/latest/universe/categories/6/?datasource=tranquility'),
-        fetch('https://esi.evetech.net/latest/universe/categories/7/?datasource=tranquility')
+        fetch('https://esi.evetech.net/latest/universe/categories/7/?datasource=tranquility'),
+        fetch('https://esi.evetech.net/latest/markets/groups/?datasource=tranquility')
       ]);
       const shipCat = await shipCatRes.json();
       const modCat = await modCatRes.json();
+      const mktGroupIds = await mktGroupsRes.json();
 
-      // Fetch all ship group type IDs
       const shipGroupDatas = await Promise.all(
         shipCat.groups.map(gid => fetch(`https://esi.evetech.net/latest/universe/groups/${gid}/?datasource=tranquility`).then(r => r.json()))
       );
-      const shipTypeIds = [...new Set(shipGroupDatas.flatMap(g => g.types || []))];
 
-      // Fetch module group type IDs (first 60 major active/passive module groups)
+      const typeToClass = {};
+      const shipTypeIds = [];
+      shipGroupDatas.forEach(g => {
+        if (!g || !g.types) return;
+        g.types.forEach(tid => {
+          typeToClass[tid] = g.name;
+          shipTypeIds.push(tid);
+        });
+      });
+
+      const typeToNation = {};
+      const mktDetails = await Promise.all(
+        mktGroupIds.slice(0, 350).map(id =>
+          fetch(`https://esi.evetech.net/latest/markets/groups/${id}/?datasource=tranquility`)
+            .then(r => r.ok ? r.json() : null).catch(() => null)
+        )
+      );
+      mktDetails.forEach(mg => {
+        if (!mg || !mg.types || !mg.types.length) return;
+        const n = (mg.name || '').toLowerCase();
+        let nation = null;
+        if (n.includes('amarr')) nation = 'Amarr';
+        else if (n.includes('caldari')) nation = 'Caldari';
+        else if (n.includes('gallente')) nation = 'Gallente';
+        else if (n.includes('minmatar')) nation = 'Minmatar';
+        else if (n.includes('ore')) nation = 'ORE';
+        else if (n.includes('faction') || n.includes('pirate') || n.includes('special') || n.includes('navy') || n.includes('precursor') || n.includes('edencom')) {
+          nation = 'Pirate';
+        }
+        if (nation) {
+          mg.types.forEach(tid => { typeToNation[tid] = nation; });
+        }
+      });
+
       const modGroupDatas = await Promise.all(
         modCat.groups.slice(0, 60).map(gid => fetch(`https://esi.evetech.net/latest/universe/groups/${gid}/?datasource=tranquility`).then(r => r.json()))
       );
       const modTypeIds = [...new Set(modGroupDatas.flatMap(g => g.types || []))];
 
-      // Resolve IDs to names in chunks of 900 via /universe/names/
       async function resolveNamesInChunks(idArray) {
         const results = [];
-        for (let i = 0; i < idArray.length; i += 900) {
-          const chunk = idArray.slice(i, i + 900);
+        const uniqueIds = [...new Set(idArray)];
+        for (let i = 0; i < uniqueIds.length; i += 900) {
+          const chunk = uniqueIds.slice(i, i + 900);
           const res = await fetch('https://esi.evetech.net/latest/universe/names/?datasource=tranquility', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -526,34 +580,55 @@ if (hullSelectEl) {
       ]);
 
       if (resolvedShips.length > 0) {
-        allHullsList = resolvedShips;
-        localStorage.setItem('eve_all_ships_v1', JSON.stringify(allHullsList));
+        const starterNationMap = new Map(STARTER_HULLS.map(h => [h.id, h.nation]));
+        allHullsList = resolvedShips.map(s => ({
+          id: s.id,
+          name: s.name,
+          className: typeToClass[s.id] || 'Ship',
+          nation: typeToNation[s.id] || starterNationMap.get(s.id) || 'Pirate'
+        }));
+        localStorage.setItem('eve_all_ships_v2', JSON.stringify(allHullsList));
       }
+
       if (resolvedMods.length > 0) {
-        // Merge starter pre-calculated modules with full ESI module catalog
         const starterMap = new Map(STARTER_MODULES.map(m => [m.id, m]));
         allModulesList = resolvedMods.map(m => starterMap.get(m.id) || { id: m.id, name: m.name });
         localStorage.setItem('eve_all_mods_v1', JSON.stringify(allModulesList));
       }
 
+      populateClassDropdown();
       renderHullDropdown();
       renderCatalog();
       if (syncStatusEl) syncStatusEl.textContent = `(${allHullsList.length} hulls & ${allModulesList.length} modules ready)`;
     } catch (err) {
       console.error('ESI full catalog sync error:', err);
-      if (syncStatusEl) syncStatusEl.textContent = '(Using built-in catalog)';
+      populateClassDropdown();
     }
   }
 
   function renderHullDropdown() {
     const filterText = (hullSearchEl ? hullSearchEl.value : '').toLowerCase();
+    const selectedClass = classSelectEl ? classSelectEl.value : 'ALL';
     hullSelectEl.innerHTML = '';
 
-    const filtered = allHullsList.filter(h => h.name.toLowerCase().includes(filterText));
-    filtered.slice(0, 200).forEach(hull => {
+    const filtered = allHullsList.filter(h => {
+      const matchesName = h.name.toLowerCase().includes(filterText);
+      const matchesClass = selectedClass === 'ALL' || h.className === selectedClass;
+      const matchesNation = activeNationFilter === 'ALL' || h.nation === activeNationFilter;
+      return matchesName && matchesClass && matchesNation;
+    });
+
+    if (filtered.length === 0) {
+      const opt = document.createElement('option');
+      opt.textContent = 'No hulls match these filters';
+      hullSelectEl.appendChild(opt);
+      return;
+    }
+
+    filtered.forEach(hull => {
       const opt = document.createElement('option');
       opt.value = hull.id;
-      opt.textContent = hull.name;
+      opt.textContent = `${hull.name} [${hull.className} • ${hull.nation || 'New Eden'}]`;
       if (hull.id === currentHull.id) opt.selected = true;
       hullSelectEl.appendChild(opt);
     });
@@ -576,7 +651,7 @@ if (hullSelectEl) {
       const matchesSlot = activeSlotFilter === 'ALL' || !m.slot || m.slot === activeSlotFilter;
       const matchesText = m.name.toLowerCase().includes(query);
       return matchesSlot && matchesText;
-    }).slice(0, 80); // Render top 80 matching modules for fast scrolling
+    }).slice(0, 80);
 
     matches.forEach(mod => {
       const li = document.createElement('li');
@@ -768,7 +843,6 @@ if (hullSelectEl) {
     updateWorkbenchUI();
   });
 
-  // Load ESI market prices & trigger full ESI Ship + Module synchronization
   fetch('https://esi.evetech.net/latest/markets/prices/?datasource=tranquility')
     .then(r => r.json())
     .then(items => {
@@ -776,6 +850,7 @@ if (hullSelectEl) {
       updateWorkbenchUI();
     }).catch(() => {});
 
+  populateClassDropdown();
   renderHullDropdown();
   renderCatalog();
   updateWorkbenchUI();

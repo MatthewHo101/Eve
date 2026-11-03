@@ -53,6 +53,26 @@
                 <!-- LEFT PANEL: HULL & MODULE BROWSER -->
                 <div class="card wb-panel">
                     <h2>1. Select Ship Hull <span id="esi-sync-status" class="mod-meta"></span></h2>
+
+                    <!-- Nation / Faction Filter Bar -->
+                    <div class="nation-filter-bar" id="nation-filter-bar">
+                        <button class="slot-filter active" data-nation="ALL">All</button>
+                        <button class="slot-filter" data-nation="Amarr">Amarr</button>
+                        <button class="slot-filter" data-nation="Caldari">Caldari</button>
+                        <button class="slot-filter" data-nation="Gallente">Gallente</button>
+                        <button class="slot-filter" data-nation="Minmatar">Minmatar</button>
+                        <button class="slot-filter" data-nation="Pirate">Faction/Pirate</button>
+                        <button class="slot-filter" data-nation="ORE">ORE</button>
+                    </div>
+
+                    <!-- Ship Class Dropdown -->
+                    <select id="class-select" class="wb-input">
+                        <option value="ALL">All Ship Classes</option>
+                    </select>
+
+                    <!-- Text Filter & Hull Dropdown -->
+                    <input type="text" id="hull-search" class="wb-input" placeholder="Search hull name (e.g. Tengu, Drake, Vargur)...">
+                    <select id="hull-select" class="wb-input"></select>
                     <input type="text" id="hull-search" class="wb-input" placeholder="Filter 450+ hulls (e.g. Tengu, Drake, Vargur)...">
                     <select id="hull-select" class="wb-input"></select>
 
