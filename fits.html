@@ -6,9 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eve Online Tracker - Fits Workbench</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="doctrine.css">
 </head>
 
-<body>
+<body class="fits-page">
     <!-- Top Navigation Bar -->
     <nav class="top-nav">
         <div class="nav-links">
@@ -37,15 +38,83 @@
 
         <!-- TAB 1: CORPORATION DOCTRINE FITS -->
         <div id="corp-doctrines" class="page-view active-view">
-            <div class="card">
-                <h2>Shield Cruiser Doctrine - Gila</h2>
-                <p>Primary fleet mainline ship. Ensure T2 Invulnerability Fields and Medium Drone Operation V.</p>
-            </div>
+            <div class="doctrine-layout">
+                <aside class="doctrine-sidebar" aria-label="Doctrine fit browser">
+                    <header class="doctrine-sidebar-heading">
+                        <p class="doctrine-eyebrow">Corporation hangar</p>
+                        <h2>Doctrine fits</h2>
+                    </header>
+                    <div class="doctrine-filters">
+                        <label class="sr-only" for="doctrine-search">Search ship, role or fit</label>
+                        <input id="doctrine-search" type="search" placeholder="Search ship, role or fit…" autocomplete="off">
+                        <div id="doctrine-categories" class="doctrine-categories" aria-label="Filter fits by category"></div>
+                    </div>
+                    <div class="doctrine-list-meta"><span id="doctrine-result-count"></span><span>EXAMPLE COLLECTION</span></div>
+                    <div id="doctrine-fit-list" class="doctrine-fit-list" aria-label="Available fits"></div>
+                    <p class="doctrine-collection-note">Example loadouts. Confirm your corporation’s approved fit before undocking.</p>
+                </aside>
 
-            <div class="card">
-                <h2>Logistics Wing - Basilisk</h2>
-                <p>Cap-chain shield logistics. Bring at least 200 Navy Cap Booster 800s in cargo.</p>
+                <section class="doctrine-detail" aria-labelledby="doctrine-title">
+                    <header class="doctrine-detail-heading">
+                        <div>
+                            <p id="doctrine-role" class="doctrine-eyebrow"></p>
+                            <h2 id="doctrine-title"></h2>
+                            <p id="doctrine-description" class="doctrine-muted"></p>
+                        </div>
+                        <div class="doctrine-actions">
+                            <button id="doctrine-copy-fit" class="doctrine-button doctrine-primary">Copy fit for EVE</button>
+                            <button id="doctrine-copy-link" class="doctrine-button">Copy link</button>
+                        </div>
+                        <p id="doctrine-copy-status" class="doctrine-copy-status" role="status"></p>
+                    </header>
+                    <div class="doctrine-fitting">
+                        <div class="doctrine-visual">
+                            <div class="doctrine-visual-meta"><span>FITTING OVERVIEW</span><span id="doctrine-hull-class"></span></div>
+                            <div class="doctrine-orbit">
+                                <div class="doctrine-ship-window">
+                                    <span class="doctrine-render-fallback" hidden>Ship render unavailable</span>
+                                    <img id="doctrine-ship" alt="" width="512" height="512">
+                                </div>
+                                <span class="doctrine-orbit-label orbit-high">High power</span>
+                                <span class="doctrine-orbit-label orbit-mid">Medium power</span>
+                                <span class="doctrine-orbit-label orbit-low">Low power</span>
+                                <span class="doctrine-orbit-label orbit-rig">Rig slots</span>
+                                <div id="doctrine-orbit-slots"></div>
+                                <strong id="doctrine-hull-label" class="doctrine-hull-label"></strong>
+                            </div>
+                            <div id="doctrine-slot-summary" class="doctrine-slot-summary"></div>
+                            <p class="doctrine-visual-caption">Ship render and item icons supplied by EVE Online.</p>
+                        </div>
+                        <div class="doctrine-loadout">
+                            <div class="doctrine-tabs" role="tablist" aria-label="Fit details">
+                                <button id="doctrine-modules-tab" role="tab" aria-selected="true" aria-controls="doctrine-modules" tabindex="0">Modules</button>
+                                <button id="doctrine-skills-tab" role="tab" aria-selected="false" aria-controls="doctrine-skills" tabindex="-1">Required skills</button>
+                            </div>
+                            <div id="doctrine-modules" class="doctrine-tab-panel" role="tabpanel" aria-labelledby="doctrine-modules-tab"></div>
+                            <div id="doctrine-skills" class="doctrine-tab-panel" role="tabpanel" aria-labelledby="doctrine-skills-tab" hidden></div>
+                        </div>
+                    </div>
+                    <section class="doctrine-readiness" aria-labelledby="doctrine-readiness-title">
+                        <div class="doctrine-readiness-heading">
+                            <div><p class="doctrine-eyebrow">Your linked EVE characters</p><h3 id="doctrine-readiness-title">My skill readiness</h3></div>
+                            <span class="doctrine-sync-badge"><span></span> Skill sync unavailable</span>
+                        </div>
+                        <div class="doctrine-readiness-stats">
+                            <div><span>Can fly minimum</span><strong>—</strong></div>
+                            <div><span>Doctrine level IV</span><strong>—</strong></div>
+                            <div><span>All relevant V</span><strong>—</strong></div>
+                            <div><span>Still training</span><strong>—</strong></div>
+                        </div>
+                        <p class="doctrine-readiness-note">Character skills are not synced yet, so fitting eligibility cannot be checked. <a href="index.html#my-characters">Manage linked characters ↗</a></p>
+                    </section>
+                </section>
             </div>
+            <dialog id="doctrine-copy-dialog" class="doctrine-copy-dialog">
+                <h2>Copy manually</h2>
+                <p>Clipboard access is unavailable. Select and copy the text below.</p>
+                <textarea id="doctrine-copy-text" readonly aria-label="Text to copy"></textarea>
+                <form method="dialog"><button class="doctrine-button">Close</button></form>
+            </dialog>
         </div>
 
         <!-- TAB 2: EVE WORKBENCH STYLE FITTING TOOL -->
@@ -213,6 +282,7 @@
 
     <script src="app.js"></script>
     <script src="characters.js"></script>
+    <script type="module" src="doctrine.js"></script>
 </body>
 
 </html>
