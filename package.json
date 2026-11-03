@@ -1,0 +1,11 @@
+{
+  "name": "eve-industry",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "check": "node scripts/check.mjs"
+  },
+  "engines": { "node": ">=22" },
+  "dependencies": { "jose": "^6.1.0" }
+}

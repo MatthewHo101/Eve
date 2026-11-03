@@ -46,6 +46,42 @@ body {
   font-size: 12px;
 }
 
+#logout-btn {
+  padding: 8px 10px;
+  font-size: 12px;
+}
+
+.auth-message {
+  max-width: 900px;
+  padding: 0 20px;
+  color: #f59e0b;
+}
+
+.char-select {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+}
+
+.char-select:hover {
+  background: transparent;
+  color: #00b4d8;
+}
+
+@media (max-width: 1300px) {
+  .top-nav {
+    flex-wrap: wrap;
+  }
+
+  .nav-auth {
+    position: static;
+    padding: 10px 0;
+  }
+}
+
 .nav-link {
   background: none;
   border: none;
