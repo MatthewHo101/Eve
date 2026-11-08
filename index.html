@@ -14,6 +14,7 @@
         <div class="nav-links">
             <button class="nav-link active" data-target="command-deck">COMMAND DECK</button>
             <button class="nav-link" data-target="my-characters">MY CHARACTERS</button>
+            <button class="nav-link" data-target="planetary-industry">PLANETARY INDUSTRY</button>
             <a class="nav-link" href="fits.html">FITS</a>
             <a class="nav-link" href="https://zkillboard.com/" target="_blank">ZKILLBOARD</a>
         </div>
@@ -62,10 +63,29 @@
                 </ul>
             </div>
         </div>
+
+        <!-- PAGE 3: PLANETARY INDUSTRY -->
+        <div id="planetary-industry" class="page-view">
+            <h1>Planetary Industry Management</h1>
+            <div class="card" id="pi-overview-card">
+                <h2>Production Overview</h2>
+                <div id="pi-summary-content">
+                    <p>Loading summary...</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Planet Details</h2>
+                <div id="pi-planet-list">
+                    <p>Loading planet data...</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="app.js"></script>
     <script src="characters.js"></script>
+    <script src="pi.js"></script>
 </body>
 
 </html>
